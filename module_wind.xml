@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_wind" default="compile.module.wind">
+  <dirname property="module.wind.basedir" file="${ant.file.module_wind}"/>
+  
+  <property name="module.jdk.home.wind" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.wind" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.wind" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.wind" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="wind.output.dir" value="${module.wind.basedir}/out/production/Wind"/>
+  <property name="wind.testoutput.dir" value="${module.wind.basedir}/out/test/Wind"/>
+  
+  <path id="wind.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="wind.module.production.classpath">
+    <path refid="${module.jdk.classpath.wind}"/>
+  </path>
+  
+  <path id="wind.runtime.production.module.classpath">
+    <pathelement location="${wind.output.dir}"/>
+  </path>
+  
+  <path id="wind.module.classpath">
+    <path refid="${module.jdk.classpath.wind}"/>
+    <pathelement location="${wind.output.dir}"/>
+  </path>
+  
+  <path id="wind.runtime.module.classpath">
+    <pathelement location="${wind.testoutput.dir}"/>
+    <pathelement location="${wind.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.wind">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.wind">
+    <patternset refid="excluded.from.module.wind"/>
+  </patternset>
+  
+  <path id="wind.module.sourcepath">
+    <dirset dir="${module.wind.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.wind" depends="compile.module.wind.production,compile.module.wind.tests" description="Compile module Wind"/>
+  
+  <target name="compile.module.wind.production" depends="register.custom.compilers" description="Compile module Wind; production classes">
+    <mkdir dir="${wind.output.dir}"/>
+    <javac2 destdir="${wind.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.wind}/javac">
+      <compilerarg line="${compiler.args.wind}"/>
+      <bootclasspath refid="wind.module.bootclasspath"/>
+      <classpath refid="wind.module.production.classpath"/>
+      <src refid="wind.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.wind"/>
+    </javac2>
+    
+    <copy todir="${wind.output.dir}">
+      <fileset dir="${module.wind.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.wind.tests" depends="register.custom.compilers,compile.module.wind.production" description="compile module Wind; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.wind" description="cleanup module">
+    <delete dir="${wind.output.dir}"/>
+    <delete dir="${wind.testoutput.dir}"/>
+  </target>
+</project>
